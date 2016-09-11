@@ -1,6 +1,6 @@
 'use strict';
 
-describe('sidebarPageSync', function () {
+describe('frameSync', function () {
   context('when annotations are loaded into the sidebar', function () {
     it('sends a "loadAnnotations" message to the page', function () {
       // TODO

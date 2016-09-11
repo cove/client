@@ -3,7 +3,7 @@
 var VIA_PREFIX = 'https://via.hypothes.is/';
 
 // @ngInject
-function ShareDialogController($scope, $element, sidebarPageSync) {
+function ShareDialogController($scope, $element, frameSync) {
   var self = this;
 
   function updateViaLink(frames) {
@@ -24,7 +24,7 @@ function ShareDialogController($scope, $element, sidebarPageSync) {
   viaInput.focus();
   viaInput.select();
 
-  $scope.$watch(function () { return sidebarPageSync.frames(); },
+  $scope.$watch(function () { return frameSync.frames(); },
     updateViaLink);
 }
 

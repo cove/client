@@ -34,9 +34,8 @@ function groupIDFromSelection(selection, results) {
 
 // @ngInject
 module.exports = function WidgetController(
-  $scope, annotationUI, annotationMapper, drafts,
-  features, groups, rootThread, settings, sidebarPageSync, streamer,
-  streamFilter, store
+  $scope, annotationUI, annotationMapper, drafts, features, frameSync, groups,
+  rootThread, settings, streamer, streamFilter, store
 ) {
   function thread() {
     return rootThread.thread(annotationUI.getState());
@@ -73,14 +72,14 @@ module.exports = function WidgetController(
     if (annotation) {
       highlights = [annotation.$$tag];
     }
-    sidebarPageSync.focusAnnotations(highlights);
+    frameSync.focusAnnotations(highlights);
   }
 
   function scrollToAnnotation(annotation) {
     if (!annotation) {
       return;
     }
-    sidebarPageSync.scrollToAnnotation(annotation.$$tag);
+    frameSync.scrollToAnnotation(annotation.$$tag);
   }
 
   /** Returns the annotation type - note or annotation of the first annotation
@@ -170,7 +169,7 @@ module.exports = function WidgetController(
   }
 
   function isLoading() {
-    if (!sidebarPageSync.frames().some(function (frame) { return frame.uri; })) {
+    if (!frameSync.frames().some(function (frame) { return frame.uri; })) {
       // The document's URL isn't known so the document must still be loading.
       return true;
     }
@@ -272,12 +271,12 @@ module.exports = function WidgetController(
       return;
     }
     annotationUI.clearSelectedAnnotations();
-    loadAnnotations(sidebarPageSync.frames());
+    loadAnnotations(frameSync.frames());
   });
 
   // Watch anything that may require us to reload annotations.
   $scope.$watch(function () {
-    return sidebarPageSync.frames();
+    return frameSync.frames();
   }, loadAnnotations);
 
   $scope.setCollapsed = function (id, collapsed) {

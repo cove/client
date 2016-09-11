@@ -41,9 +41,9 @@ describe('WidgetController', function () {
   var $scope;
   var annotationUI;
   var fakeAnnotationMapper;
-  var fakeSidebarPageSync;
   var fakeDrafts;
   var fakeFeatures;
+  var fakeFrameSync;
   var fakeGroups;
   var fakeRootThread;
   var fakeSettings;
@@ -74,7 +74,7 @@ describe('WidgetController', function () {
       unloadAnnotations: sandbox.spy(),
     };
 
-    fakeSidebarPageSync = {
+    fakeFrameSync = {
       focusAnnotations: sinon.stub(),
       scrollToAnnotation: sinon.stub(),
       frames: sinon.stub().returns([]),
@@ -116,8 +116,8 @@ describe('WidgetController', function () {
     $provide.value('annotationMapper', fakeAnnotationMapper);
     $provide.value('drafts', fakeDrafts);
     $provide.value('features', fakeFeatures);
+    $provide.value('frameSync', fakeFrameSync);
     $provide.value('rootThread', fakeRootThread);
-    $provide.value('sidebarPageSync', fakeSidebarPageSync);
     $provide.value('store', fakeStore);
     $provide.value('streamer', fakeStreamer);
     $provide.value('streamFilter', fakeStreamFilter);
@@ -126,7 +126,7 @@ describe('WidgetController', function () {
   }));
 
   function setFrames(frames) {
-    fakeSidebarPageSync.frames.returns(frames);
+    fakeFrameSync.frames.returns(frames);
   }
 
   beforeEach(angular.mock.inject(function ($controller, _annotationUI_, _$rootScope_) {
@@ -277,8 +277,8 @@ describe('WidgetController', function () {
       annotationUI.addAnnotations([annot]);
       $scope.$digest();
       $rootScope.$broadcast(events.ANNOTATIONS_SYNCED, [{tag: 'atag'}]);
-      assert.calledWith(fakeSidebarPageSync.focusAnnotations, ['atag']);
-      assert.calledWith(fakeSidebarPageSync.scrollToAnnotation, 'atag');
+      assert.calledWith(fakeFrameSync.focusAnnotations, ['atag']);
+      assert.calledWith(fakeFrameSync.scrollToAnnotation, 'atag');
     });
   });
 

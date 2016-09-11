@@ -14,22 +14,22 @@ var metadata = require('./annotation-metadata');
 
 /**
  * This service runs in the sidebar and is responsible for keeping the set of
- * annotations displayed in the page in sync with the set shown in the sidebar.
+ * annotations displayed in connected frames in sync with the set shown in the
+ * sidebar.
  */
 // @ngInject
-function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
+function frameSync($rootScope, Discovery, annotationUI, bridge) {
 
-  // Set of tags of annotations that are currently loaded into the page
-  var inPage = new Set();
+  // Set of tags of annotations that are currently loaded into the frame
+  var inFrame = new Set();
 
   /**
    * Return a minimal representation of an annotation that can be sent from the
-   * sidebar app to the page.
+   * sidebar app to a connected frame.
    *
    * Because this representation will be exposed to untrusted third-party
-   * JavaScript running in the page, it includes only the information needed
-   * to uniquely identify it within the current session and anchor it in the
-   * page.
+   * JavaScript, it includes only the information needed to uniquely identify it
+   * within the current session and anchor it in the document.
    */
   function formatAnnot(annot) {
     return {
@@ -44,9 +44,9 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
 
   /**
    * Watch for changes to the set of annotations displayed in the sidebar and
-   * notify connected pages about new/updated/deleted annotations.
+   * notify connected frames about new/updated/deleted annotations.
    */
-  function setupSyncToPage() {
+  function setupSyncToFrame() {
     // List of loaded annotations in previous state
     var prevAnnotations = [];
 
@@ -61,12 +61,12 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
 
       state.annotations.forEach(function (annot) {
         if (metadata.isReply(annot)) {
-          // The page does not need to know about replies
+          // The frame does not need to know about replies
           return;
         }
 
         inSidebar.add(annot.$$tag);
-        if (!inPage.has(annot.$$tag)) {
+        if (!inFrame.has(annot.$$tag)) {
           added.push(annot);
         }
       });
@@ -75,38 +75,38 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
       });
       prevAnnotations = state.annotations;
 
-      // We currently only handle adding and removing annotations from the page
+      // We currently only handle adding and removing annotations from the frame
       // when they are added or removed in the sidebar, but not re-anchoring
       // annotations if their selectors are updated.
       if (added.length > 0) {
         bridge.call('loadAnnotations', added.map(formatAnnot));
         added.forEach(function (annot) {
-          inPage.add(annot.$$tag);
+          inFrame.add(annot.$$tag);
         });
       }
       deleted.forEach(function (annot) {
         bridge.call('deleteAnnotation', formatAnnot(annot));
-        inPage.remove(annot.$$tag);
+        inFrame.delete(annot.$$tag);
       });
     });
   }
 
   /**
-   * Listen for messages coming in from connected pages and add new annotations
+   * Listen for messages coming in from connected frames and add new annotations
    * to the sidebar.
    */
-  function setupSyncFromPage() {
-    // A new annotation, note or highlight was created in the page
+  function setupSyncFromFrame() {
+    // A new annotation, note or highlight was created in the frame
     bridge.on('beforeCreateAnnotation', function (event) {
-      inPage.add(event.tag);
+      inFrame.add(event.tag);
       var annot = Object.assign({}, event.msg, {$$tag: event.tag});
       $rootScope.$broadcast(events.BEFORE_ANNOTATION_CREATED, annot);
     });
 
-    // Anchoring an annotation in the page completed
+    // Anchoring an annotation in the frame completed
     bridge.on('sync', function (events) {
       events.forEach(function (event) {
-        inPage.add(event.tag);
+        inFrame.add(event.tag);
         annotationUI.updateAnchorStatus(null, event.tag, event.msg.$orphan);
         $rootScope.$broadcast(events.ANNOTATIONS_SYNCED, [event.tag]);
       });
@@ -152,15 +152,15 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
     discovery.startDiscovery(bridge.createChannel.bind(bridge));
     bridge.onConnect(addFrame);
 
-    setupSyncToPage();
-    setupSyncFromPage();
+    setupSyncToFrame();
+    setupSyncFromFrame();
   };
 
   /**
    * Focus annotations with the given tags.
    *
-   * This is used to indicate the highlight in the page that corresponds to a
-   * given annotation in the sidebar.
+   * This is used to indicate the highlight in the document that corresponds to
+   * a given annotation in the sidebar.
    *
    * @param {string[]} tags
    */
@@ -169,7 +169,7 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
   };
 
   /**
-   * Scroll the page to the highlight for an annotation with a given tag.
+   * Scroll the frame to the highlight for an annotation with a given tag.
    *
    * @param {string} tag
    */
@@ -178,7 +178,7 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
   };
 
   /**
-   * List of frames that are connected to the page.
+   * List of frames that are connected to the app.
    * @type {FrameInfo}
    */
   this.frames = function () {
@@ -186,4 +186,4 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
   };
 }
 
-module.exports = sidebarPageSync;
+module.exports = frameSync;

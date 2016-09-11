@@ -83,11 +83,11 @@ function configureRoutes($routeProvider) {
 }
 
 // @ngInject
-function setupPageSync(sidebarPageSync) {
-  // Setup the connection to the document hosting the sidebar app.
+function setupFrameSync(frameSync) {
+  // Setup the connection to the frame hosting the sidebar app.
   // This should only be done if this is the sidebar app, not the stream or
   // standalone annotation pages.
-  return sidebarPageSync.connect();
+  return frameSync.connect();
 }
 
 // @ngInject
@@ -188,7 +188,7 @@ module.exports = angular.module('h', [
   .service('searchFilter', require('./search-filter'))
   .service('serviceUrl', require('./service-url'))
   .service('session', require('./session'))
-  .service('sidebarPageSync', require('./sidebar-page-sync'))
+  .service('frameSync', require('./frame-sync'))
   .service('streamer', require('./streamer'))
   .service('streamFilter', require('./stream-filter'))
   .service('tags', require('./tags'))
@@ -210,7 +210,7 @@ module.exports = angular.module('h', [
   .config(configureLocation)
   .config(configureRoutes)
 
-  .run(setupPageSync)
+  .run(setupFrameSync)
   .run(setupHttp);
 
 processAppOpts();
