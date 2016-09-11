@@ -11,7 +11,7 @@ module.exports = function () {
     bindToController: true,
     controllerAs: 'vm',
     // @ngInject
-    controller: function ($scope, $window, crossframe, serviceUrl) {
+    controller: function ($scope, $window, serviceUrl, sidebarPageSync) {
       this.userAgent = $window.navigator.userAgent;
       this.version = '__VERSION__';  // replaced by versionify
       this.dateTime = new Date();
@@ -19,7 +19,7 @@ module.exports = function () {
 
       $scope.$watchCollection(
         function () {
-          return crossframe.frames;
+          return sidebarPageSync.frames;
         },
         function (frames) {
           if (frames.length === 0) {

@@ -83,8 +83,11 @@ function configureRoutes($routeProvider) {
 }
 
 // @ngInject
-function setupCrossFrame(crossframe) {
-  return crossframe.connect();
+function setupPageSync(sidebarPageSync) {
+  // Setup the connection to the document hosting the sidebar app.
+  // This should only be done if this is the sidebar app, not the stream or
+  // standalone annotation pages.
+  return sidebarPageSync.connect();
 }
 
 // @ngInject
@@ -172,7 +175,6 @@ module.exports = angular.module('h', [
   .service('annotationUI', require('./annotation-ui'))
   .service('auth', require('./auth').service)
   .service('bridge', require('./bridge'))
-  .service('crossframe', require('./cross-frame'))
   .service('drafts', require('./drafts'))
   .service('features', require('./features'))
   .service('flash', require('./flash'))
@@ -186,6 +188,7 @@ module.exports = angular.module('h', [
   .service('searchFilter', require('./search-filter'))
   .service('serviceUrl', require('./service-url'))
   .service('session', require('./session'))
+  .service('sidebarPageSync', require('./sidebar-page-sync'))
   .service('streamer', require('./streamer'))
   .service('streamFilter', require('./stream-filter'))
   .service('tags', require('./tags'))
@@ -194,7 +197,6 @@ module.exports = angular.module('h', [
 
   .factory('store', require('./store'))
 
-  .value('AnnotationSync', require('./annotation-sync'))
   .value('AnnotationUISync', require('./annotation-ui-sync'))
   .value('Discovery', require('./discovery'))
   .value('ExcerptOverflowMonitor', require('./directive/excerpt-overflow-monitor'))
@@ -208,7 +210,7 @@ module.exports = angular.module('h', [
   .config(configureLocation)
   .config(configureRoutes)
 
-  .run(setupCrossFrame)
+  .run(setupPageSync)
   .run(setupHttp);
 
 processAppOpts();

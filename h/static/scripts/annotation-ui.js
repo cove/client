@@ -97,6 +97,8 @@ function initialState(settings) {
     sortKey: TAB_SORTKEY_DEFAULT[TAB_DEFAULT],
     // Keys by which annotations can be sorted.
     sortKeysAvailable: TAB_SORTKEYS_AVAILABLE[TAB_DEFAULT],
+
+    nextTag: 1,
   });
 }
 
@@ -165,21 +167,22 @@ function findByTag(annotations, tag) {
 /**
  * Initialize the status flags and properties of a new annotation.
  */
-function initializeAnnot(annotation) {
-  if (annotation.id) {
-    return annotation;
+function initializeAnnot(annotation, tag) {
+  var orphan = annotation.$orphan;
+
+  if (!annotation.id) {
+    // Currently the user ID, permissions and group of new annotations are
+    // initialized in the <annotation> component controller because the session
+    // state and focused group are not stored in the Redux store. Once they are,
+    // that initialization should be moved here.
+
+    // New annotations must be anchored
+    orphan = false;
   }
 
-  // Currently the user ID, permissions and group of new annotations are
-  // initialized in the <annotation> component controller because the session
-  // state and focused group are not stored in the Redux store. Once they are,
-  // that initialization should be moved here.
-
   return Object.assign({}, annotation, {
-    // Copy $$tag explicitly because it is non-enumerable
-    $$tag: annotation.$$tag,
-    // New annotations must be anchored
-    $orphan: false,
+    $$tag: annotation.$$tag || tag,
+    $orphan: orphan,
   });
 }
 
@@ -220,6 +223,7 @@ function annotationsReducer(state, action) {
       var added = [];
       var unchanged = [];
       var updated = [];
+      var nextTag = state.nextTag;
 
       action.annotations.forEach(function (annot) {
         var existing;
@@ -241,7 +245,8 @@ function annotationsReducer(state, action) {
             updatedTags[existing.$$tag] = true;
           }
         } else {
-          added.push(initializeAnnot(annot));
+          added.push(initializeAnnot(annot, 't' + nextTag));
+          ++nextTag;
         }
       });
 
@@ -253,6 +258,7 @@ function annotationsReducer(state, action) {
 
       return Object.assign({}, state, {
         annotations: added.concat(updated).concat(unchanged),
+        nextTag: nextTag,
       });
     }
   case types.REMOVE_ANNOTATIONS:
