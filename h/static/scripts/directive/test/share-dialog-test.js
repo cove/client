@@ -8,7 +8,7 @@ describe('shareDialog', function () {
   var fakeSidebarPageSync;
 
   beforeEach(function () {
-    fakeSidebarPageSync = { frames: [] };
+    fakeSidebarPageSync = { frames: sinon.stub().returns([]) };
 
     angular.module('h', [])
       .directive('shareDialog', require('../share-dialog'))
@@ -19,14 +19,16 @@ describe('shareDialog', function () {
 
   it('generates new via link', function () {
     var element = util.createDirective(document, 'shareDialog', {});
-    fakeSidebarPageSync.frames.push({ uri: 'http://example.com' });
+    fakeSidebarPageSync.frames.returns([{ uri: 'http://example.com' }]);
     element.scope.$digest();
     assert.equal(element.ctrl.viaPageLink, 'https://via.hypothes.is/http://example.com');
   });
 
   it('does not generate new via link if already on via', function () {
     var element = util.createDirective(document, 'shareDialog', {});
-    fakeSidebarPageSync.frames.push({ uri: 'https://via.hypothes.is/http://example.com' });
+    fakeSidebarPageSync.frames.returns([{
+      uri: 'https://via.hypothes.is/http://example.com',
+    }]);
     element.scope.$digest();
     assert.equal(element.ctrl.viaPageLink, 'https://via.hypothes.is/http://example.com');
   });

@@ -170,7 +170,7 @@ module.exports = function WidgetController(
   }
 
   function isLoading() {
-    if (!sidebarPageSync.frames.some(function (frame) { return frame.uri; })) {
+    if (!sidebarPageSync.frames().some(function (frame) { return frame.uri; })) {
       // The document's URL isn't known so the document must still be loading.
       return true;
     }
@@ -272,12 +272,12 @@ module.exports = function WidgetController(
       return;
     }
     annotationUI.clearSelectedAnnotations();
-    loadAnnotations(sidebarPageSync.frames);
+    loadAnnotations(sidebarPageSync.frames());
   });
 
   // Watch anything that may require us to reload annotations.
-  $scope.$watchCollection(function () {
-    return sidebarPageSync.frames;
+  $scope.$watch(function () {
+    return sidebarPageSync.frames();
   }, loadAnnotations);
 
   $scope.setCollapsed = function (id, collapsed) {

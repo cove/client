@@ -24,7 +24,7 @@ function ShareDialogController($scope, $element, sidebarPageSync) {
   viaInput.focus();
   viaInput.select();
 
-  $scope.$watchCollection(function () { return sidebarPageSync.frames; },
+  $scope.$watch(function () { return sidebarPageSync.frames(); },
     updateViaLink);
 }
 

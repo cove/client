@@ -17,9 +17,9 @@ module.exports = function () {
       this.dateTime = new Date();
       this.serviceUrl = serviceUrl;
 
-      $scope.$watchCollection(
+      $scope.$watch(
         function () {
-          return sidebarPageSync.frames;
+          return sidebarPageSync.frames();
         },
         function (frames) {
           if (frames.length === 0) {

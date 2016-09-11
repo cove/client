@@ -19,10 +19,6 @@ var metadata = require('./annotation-metadata');
 // @ngInject
 function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
 
-  // List of FrameInfo objects containing metadata about frames connected to
-  // the app
-  var frames = [];
-
   // Set of tags of annotations that are currently loaded into the page
   var inPage = new Set();
 
@@ -140,14 +136,10 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
         });
       }
 
-      // The `frames` list is currently stored by this service but should in
-      // future be moved to the app state.
-      $rootScope.$apply(function () {
-        frames.push({
-          uri: info.uri,
-          searchUris: searchUris,
-          documentFingerprint: documentFingerprint,
-        });
+      annotationUI.frameConnected({
+        uri: info.uri,
+        searchUris: searchUris,
+        documentFingerprint: documentFingerprint,
       });
     });
   }
@@ -189,7 +181,9 @@ function sidebarPageSync($rootScope, Discovery, annotationUI, bridge) {
    * List of frames that are connected to the page.
    * @type {FrameInfo}
    */
-  this.frames = frames;
+  this.frames = function () {
+    return annotationUI.getState().frames;
+  };
 }
 
 module.exports = sidebarPageSync;

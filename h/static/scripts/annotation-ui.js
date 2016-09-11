@@ -99,6 +99,9 @@ function initialState(settings) {
     sortKeysAvailable: TAB_SORTKEYS_AVAILABLE[TAB_DEFAULT],
 
     nextTag: 1,
+
+    // List of frames currently connected to the sidebar
+    frames: [],
   });
 }
 
@@ -128,6 +131,9 @@ var types = {
    * display all annotations, rather than only those in the current tab.
    */
   SET_SIDEBAR: 'SET_SIDEBAR',
+
+  /** A new document connected to the sidebar app. */
+  FRAME_CONNECTED: 'FRAME_CONNECTED',
 };
 
 /**
@@ -333,6 +339,10 @@ function reducer(state, action) {
     return Object.assign({}, state, {isSidebar: action.isSidebar});
   case types.SET_SORT_KEY:
     return Object.assign({}, state, {sortKey: action.key});
+  case types.FRAME_CONNECTED:
+    return Object.assign({}, state, {
+      frames: state.frames.concat(action.frame),
+    });
   default:
     return state;
   }
@@ -614,6 +624,10 @@ module.exports = function ($rootScope, settings) {
     /** Set whether the app is the sidebar */
     setAppIsSidebar: function (isSidebar) {
       store.dispatch({type: types.SET_SIDEBAR, isSidebar: isSidebar});
+    },
+
+    frameConnected: function (frame) {
+      store.dispatch({type: types.FRAME_CONNECTED, frame: frame});
     },
   };
 };

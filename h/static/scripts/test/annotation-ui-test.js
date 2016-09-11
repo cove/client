@@ -488,4 +488,11 @@ describe('annotationUI', function () {
       assert.isTrue(annots[1].$orphan);
     });
   });
+
+  describe('#frameConnected', function () {
+    it('adds the frame to the list of connected frames', function () {
+      annotationUI.frameConnected({uri: 'http://example.com'});
+      assert.deepEqual(annotationUI.getState().frames, [{uri: 'http://example.com'}]);
+    });
+  });
 });
